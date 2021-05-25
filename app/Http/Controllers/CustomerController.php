@@ -88,8 +88,8 @@ class CustomerController extends Controller
     public function getClientInformation(Request $request)
     {
         $date = new \DateTime();
-        $companyId = 549756039533;
-        $apikey = 'ZDEwMGMxNjgtODU2MC00ZTE5LWEyZmUtMjY2M2RhZmQ0YzNh';
+        $companyId = env('COMPANY_ID');;
+        $apikey    = env('APIKEY');
         $uuid = uniqid();
         $id = $request->input('id');
 

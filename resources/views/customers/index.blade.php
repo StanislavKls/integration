@@ -33,8 +33,8 @@
                 <td>{{ $customer->customer_id }}</td>
                 <td>{{ $customer->display_name}}</td>
                 <td>{{ $customer->points }}</a></td>
-                <td>{{ $customer->created_at }}</td>
-                <td>{{ $customer->updated_at}}</td>
+                <td>{{ $customer->created_at->add(5, 'hour') }}</td>
+                <td>{{ $customer->updated_at->add(5, 'hour')}}</td>
             </tr>
         @endforeach
     </table>

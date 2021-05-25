@@ -79,10 +79,10 @@ class UDSController extends Controller
     }
     public function getClientInformation(int $id): array
     {
-        $date = new \DateTime();
-        $companyId = 549756039533;
-        $apikey = 'ZDEwMGMxNjgtODU2MC00ZTE5LWEyZmUtMjY2M2RhZmQ0YzNh';
-        $uuid = uniqid();
+        $date      = new \DateTime();
+        $companyId = env('COMPANY_ID');;
+        $apikey    = env('APIKEY');
+        $uuid      = uniqid();
 
         $response = Http::withHeaders([
                                        'Accept' => 'application/json',
