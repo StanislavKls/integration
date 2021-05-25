@@ -22,3 +22,4 @@ Route::get('/', function () {
 Route::post('/', [CustomerController::class, 'getClientInformation'])->name('getcustomer');
 
 Route::resource('customers', CustomerController::class);
+

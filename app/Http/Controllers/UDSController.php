@@ -7,29 +7,44 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Customer;
 use App\Models\Item;
+use App\Models\Order;
+use App\Models\Shop;
 use Illuminate\Support\Facades\Http;
-use GuzzleHttp\Client;
+
 
 class UDSController extends Controller
 {
     public function upload(Request $request)
     {
-        $xRequestId = $request->header('X-Request-Id');
-        $xTimestamp = $request->header('X-Timestamp');
-        $xSignature = $request->header('X-Signature');
-        //$data = json_encode($request->json()->all(), true);
         $data = $request->json()->all();
         $this->saveLog($data);
         $this->saveCustomer($data['customer']['id']);
-        //$this->saveItems($data['items']);
-        //$this->getClientInformation();
 
+        if ($data['delivery']['type'] === 'PICKUP') {
+            $this->saveShop($data['delivery']['branch']);
+        }
+        $this->saveItems($data['items']);
 
+        $order['id']                      = $data['id'];
+        $order['date_created']            = $data['dateCreated'];
+        $order['points']                  = $data['points'];
+        $order['certificate_points']      = $data['certificatePoints'];
+        $order['cash']                    = $data['cash'];
+        $order['total']                   = $data['total'];
+        $order['comment']                 = $data['comment'];
+        $order['customer_id']             = $data['customer']['id'];
+        $order['shop_id']                 = $data['delivery']['branch']['id'];
+        $order['delivery_address']        = $data['delivery']['address'];
+        $order['delivery_receiver_name']  = $data['delivery']['receiverName'];
+        $order['delivery_receiver_phone'] = $data['delivery']['receiverPhone'];
+        $order['delivery_user_comment']   = $data['delivery']['userComment'];
+        $this->saveOrder($order);
 
-        //print_r($data['customer']);
-        //return response()->json($data['items'], 201);
+        $idAndPriceOfItems = collect($data['items'])->map(fn($item, $key) => ['id' => $item['id'], 'price' => $item['price']])->toArray();
+        $this->saveOrderItems($data['id'], $idAndPriceOfItems);
+        return response()->json('', 200);
     }
-    public function saveCustomer($id)
+    public function saveCustomer(int $id)
     {
         $data = $this->getClientInformation($id);
 
@@ -37,41 +52,38 @@ class UDSController extends Controller
             $customer = new Customer();
             $customer->fill($data);
             $customer->save();
-            return response('', 200);
+            return true;
         }
         $customer = Customer::find($id);
         $customer->fill($data);
         $customer->save();
 
-        return response('', 200);
+        return true;
     }
-    public function saveItems($data)
+    public function saveItems(array $data): bool
     {
-        $items = new Item();
-        $ids = collect(array_map(fn($item) => $item['id'], $data));
-        $diff = $ids->diff($items->pluck('item_id'));
-
-        $filteredItems = collect($data)->filter(function ($item) use ($diff) {
-            return $diff->search($item['id']);
-        })->toArray();
-
-        foreach ($filteredItems as $item) {
-            $goods['item_id']      = $item['id'];
+        foreach ($data as $item) {
+            $goods['id']           = $item['id'];
             $goods['name']         = $item['name'];
             $goods['price']        = $item['price'];
             $goods['qty']          = $item['qty'];
-            $goods['sku']          = $item['sku'];
             $goods['type']         = $item['id'];
             $goods['variant_name'] = $item['variantName'];
             $goods['external_id']  = $item['externalId'];
-            $goodsModel = new Item();
-            $goodsModel->fill($goods);
-            $goodsModel->save();
-        }
 
+            if (!Item::find($item['id'])) {
+                $goodsModel = new Item();
+                $goodsModel->fill($goods);
+                $goodsModel->save();
+            } else {
+                $goodsModel = Item::find($item['id']);
+                $goodsModel->fill($goods);
+                $goodsModel->save();
+            }
+        }
         return true;
     }
-    public function saveLog($data)
+    public function saveLog(array $data)
     {
         $contents = print_r($data, 1);
         Storage::append('uds_log.txt', $contents);
@@ -95,7 +107,7 @@ class UDSController extends Controller
         $data = $response->json();
 
         return [
-            'customer_id'           => $data['participant']['id'],
+            'id'                    => $data['participant']['id'],
             'display_name'          => $data['displayName'],
             'birth_date'            => $data['birthDate'],
             'phone'                 => $data['phone'],
@@ -107,5 +119,31 @@ class UDSController extends Controller
             'last_transaction_time' => $data['participant']['lastTransactionTime'],
             'uid'                   => $data['uid'],
             ];
+    }
+    public function saveShop(array $data): bool
+    {
+        if (!Shop::find($data['id'])) {
+            $shop = new Shop();
+            $shop->id = $data['id'];
+            $shop->display_name = $data['displayName'];
+            $shop->save();
+            return true;
+        }
+        return false;
+    }
+    public function saveOrder(array $data): bool
+    {
+        $order = new Order();
+        $order->fill($data);
+        $order->save();
+        return true;
+    }
+    public function saveOrderItems(int $id, array $data): bool
+    {
+        $order = Order::find($id);
+        foreach ($data as $item) {
+            $order->items()->attach($item['id'], ['price' => $item['price']]);
+        }
+        return true;
     }
 }

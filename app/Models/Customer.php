@@ -9,7 +9,7 @@ class Customer extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['customer_id',
+    protected $fillable = ['id',
                            'display_name',
                            'birth_date',
                            'phone',
@@ -22,7 +22,12 @@ class Customer extends Model
                            'uid'
                           ];
 
-    protected $primaryKey = 'customer_id';
+    protected $primaryKey = 'id';
 
     public $incrementing = false;
+
+    public function orders(): mixed
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
 }

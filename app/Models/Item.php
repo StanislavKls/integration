@@ -9,11 +9,14 @@ class Item extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['item_id', 'name', 'price', 'qty', 'sku', 'type', 'variant_name', 'external_id'];
+    protected $fillable = ['id', 'name', 'price', 'qty', 'type', 'variant_name', 'external_id'];
 
-    protected $primaryKey = 'item_id';
+    protected $primaryKey = 'id';
 
     public $incrementing = false;
 
-    public $timestamps = false;
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_item', 'item_id', 'order_id');
+    }
 }
