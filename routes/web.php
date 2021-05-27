@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\BitrixController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +25,8 @@ Route::post('/', [CustomerController::class, 'getClientInformation'])->name('get
 
 Route::resource('customers', CustomerController::class);
 
+Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+
+Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+
+Route::get('bitrix/{id}', [BitrixController::class, 'upload'])->name('bitrix.upload');

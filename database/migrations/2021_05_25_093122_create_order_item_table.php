@@ -18,6 +18,7 @@ class CreateOrderItemTable extends Migration
             $table->integer('order_id');
             $table->integer('item_id');
             $table->float('price', 9, 2);
+            $table->integer('qty');
 
             $table->foreign('order_id')
                 ->references('id')

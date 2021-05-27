@@ -17,7 +17,6 @@ class CreateItemsTable extends Migration
             $table->bigInteger('id')->unique();
             $table->string('name');
             $table->float('price', 9, 2);
-            $table->integer('qty');
             $table->string('type');
             $table->string('variant_name');
             $table->bigInteger('external_id')->nullable();

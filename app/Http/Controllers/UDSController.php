@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UDS;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Customer;
@@ -10,7 +9,6 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\Shop;
 use Illuminate\Support\Facades\Http;
-
 
 class UDSController extends Controller
 {
@@ -34,13 +32,15 @@ class UDSController extends Controller
         $order['comment']                 = $data['comment'];
         $order['customer_id']             = $data['customer']['id'];
         $order['shop_id']                 = $data['delivery']['branch']['id'];
+        $order['delivery_type']           = $data['delivery']['type'];
         $order['delivery_address']        = $data['delivery']['address'];
         $order['delivery_receiver_name']  = $data['delivery']['receiverName'];
         $order['delivery_receiver_phone'] = $data['delivery']['receiverPhone'];
         $order['delivery_user_comment']   = $data['delivery']['userComment'];
+        $order['uploaded_to_bitrix']      = false;
         $this->saveOrder($order);
-
-        $idAndPriceOfItems = collect($data['items'])->map(fn($item, $key) => ['id' => $item['id'], 'price' => $item['price']])->toArray();
+        
+        $idAndPriceOfItems = array_map(fn($item) => ['id' => $item['id'], 'price' => $item['price'], 'qty' => $item['qty']], $data['items']);
         $this->saveOrderItems($data['id'], $idAndPriceOfItems);
         return response()->json('', 200);
     }
@@ -66,7 +66,6 @@ class UDSController extends Controller
             $goods['id']           = $item['id'];
             $goods['name']         = $item['name'];
             $goods['price']        = $item['price'];
-            $goods['qty']          = $item['qty'];
             $goods['type']         = $item['id'];
             $goods['variant_name'] = $item['variantName'];
             $goods['external_id']  = $item['externalId'];
@@ -138,11 +137,11 @@ class UDSController extends Controller
         $order->save();
         return true;
     }
-    public function saveOrderItems(int $id, array $data): bool
+    public function saveOrderItems(int $id, array $items): bool
     {
         $order = Order::find($id);
-        foreach ($data as $item) {
-            $order->items()->attach($item['id'], ['price' => $item['price']]);
+        foreach ($items as $item) {
+            $order->items()->attach($item['id'], ['price' => $item['price'], 'qty' => $item['qty']]);
         }
         return true;
     }

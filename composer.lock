@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "839f496ec8f16d68f9c51f416e9b7086",
+    "content-hash": "5cd41151576fc5998f2235f445d64f41",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2314,6 +2314,38 @@
                 }
             ],
             "time": "2020-08-18T17:17:46+00:00"
+        },
+        {
+            "name": "stanislavk/crest",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/StanislavKls/crest.git",
+                "reference": "dc9292ef3db713e162105ce00697c73622005175"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/StanislavKls/crest/zipball/dc9292ef3db713e162105ce00697c73622005175",
+                "reference": "dc9292ef3db713e162105ce00697c73622005175",
+                "shasum": ""
+            },
+            "default-branch": true,
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "StanislavK",
+                    "email": "klecov@gmail.com"
+                }
+            ],
+            "description": "Tiny PHP SDK to call Bitrix24 REST methods via webhooks and OAuth 2.0",
+            "support": {
+                "source": "https://github.com/StanislavKls/crest/tree/master"
+            },
+            "time": "2021-05-26T04:21:08+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -7330,7 +7362,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "stanislavk/crest": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

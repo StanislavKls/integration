@@ -33,6 +33,7 @@ class CreateOrdersTable extends Migration
             $table->string('delivery_receiver_phone')->nullable();
             $table->string('delivery_user_comment')->nullable();
             
+            $table->boolean('uploaded_to_bitrix')->nullable();
             $table->timestamps();
         });
     }

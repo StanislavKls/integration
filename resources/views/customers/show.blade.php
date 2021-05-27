@@ -15,7 +15,7 @@
 @endif
 
 <div class="jumbotron">
-    <h1 class="display-4">Customer</h1>
+    <h1 class="display-4">Покупатель</h1>
 </div>
 
 
