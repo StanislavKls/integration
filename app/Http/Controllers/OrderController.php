@@ -26,6 +26,10 @@ class OrderController extends Controller
     public function show(int $id)
     {
         $order = Order::findOrFail($id);
-        return view('orders.show', compact('order'));
+        $sum = $order->items->reduce(function($acc, $item) {
+            $acc += $item->pivot->qty * $item->pivot->price;
+            return $acc;
+        });
+        return view('orders.show', compact('order', 'sum'));
     }
 }

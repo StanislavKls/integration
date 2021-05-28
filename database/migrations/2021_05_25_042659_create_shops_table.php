@@ -16,6 +16,8 @@ class CreateShopsTable extends Migration
         Schema::create('shops', function (Blueprint $table) {
             $table->bigInteger('id')->unique();
             $table->string('display_name');
+            $table->integer('bitrix_id')->nullable();
+            $table->integer('accountable_id')->nullable();
             $table->timestamps();
         });
     }

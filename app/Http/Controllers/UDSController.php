@@ -9,6 +9,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\Shop;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\BitrixController;
 
 class UDSController extends Controller
 {
@@ -20,6 +21,7 @@ class UDSController extends Controller
 
         if ($data['delivery']['type'] === 'PICKUP') {
             $this->saveShop($data['delivery']['branch']);
+            $order['shop_id'] = $data['delivery']['branch']['id'];
         }
         $this->saveItems($data['items']);
 
@@ -30,8 +32,7 @@ class UDSController extends Controller
         $order['cash']                    = $data['cash'];
         $order['total']                   = $data['total'];
         $order['comment']                 = $data['comment'];
-        $order['customer_id']             = $data['customer']['id'];
-        $order['shop_id']                 = $data['delivery']['branch']['id'];
+        $order['customer_id']             = $data['customer']['id'];  
         $order['delivery_type']           = $data['delivery']['type'];
         $order['delivery_address']        = $data['delivery']['address'];
         $order['delivery_receiver_name']  = $data['delivery']['receiverName'];
@@ -42,12 +43,14 @@ class UDSController extends Controller
         
         $idAndPriceOfItems = array_map(fn($item) => ['id' => $item['id'], 'price' => $item['price'], 'qty' => $item['qty']], $data['items']);
         $this->saveOrderItems($data['id'], $idAndPriceOfItems);
+
+        $bitrixController = new BitrixController();
+        $bitrixController->upload($data['id']);
         return response()->json('', 200);
     }
-    public function saveCustomer(int $id)
+    private function saveCustomer(int $id)
     {
         $data = $this->getClientInformation($id);
-
         if (!Customer::find($id)) {
             $customer = new Customer();
             $customer->fill($data);
@@ -60,7 +63,7 @@ class UDSController extends Controller
 
         return true;
     }
-    public function saveItems(array $data): bool
+    private function saveItems(array $data): bool
     {
         foreach ($data as $item) {
             $goods['id']           = $item['id'];
@@ -82,13 +85,13 @@ class UDSController extends Controller
         }
         return true;
     }
-    public function saveLog(array $data)
+    private function saveLog(array $data)
     {
         $contents = print_r($data, 1);
         Storage::append('uds_log.txt', $contents);
         return true;
     }
-    public function getClientInformation(int $id): array
+    private function getClientInformation(int $id): array
     {
         $date      = new \DateTime();
         $companyId = env('COMPANY_ID');;
@@ -119,7 +122,7 @@ class UDSController extends Controller
             'uid'                   => $data['uid'],
             ];
     }
-    public function saveShop(array $data): bool
+    private function saveShop(array $data): bool
     {
         if (!Shop::find($data['id'])) {
             $shop = new Shop();
@@ -130,14 +133,14 @@ class UDSController extends Controller
         }
         return false;
     }
-    public function saveOrder(array $data): bool
+    private function saveOrder(array $data): bool
     {
         $order = new Order();
         $order->fill($data);
         $order->save();
         return true;
     }
-    public function saveOrderItems(int $id, array $items): bool
+    private function saveOrderItems(int $id, array $items): bool
     {
         $order = Order::find($id);
         foreach ($items as $item) {

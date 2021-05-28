@@ -16,9 +16,9 @@ class CreateItemsTable extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->bigInteger('id')->unique();
             $table->string('name');
-            $table->float('price', 9, 2);
-            $table->string('type');
-            $table->string('variant_name');
+            $table->float('price', 9, 2)->nullable();
+            $table->string('type')->nullable();
+            $table->string('variant_name')->nullable();
             $table->bigInteger('external_id')->nullable();
             $table->timestamps();
         });

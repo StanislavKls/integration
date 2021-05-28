@@ -3,6 +3,7 @@
 @section('title', 'Главная')
 
 @section('content')
+@include('flash::message')
 @if ($errors->any())
     <div class="alert alert-danger" role="alert">
         <ul>
@@ -41,9 +42,9 @@
                     @else
                         <td> Да </td>
                     @endif
-                    <td><a href="{{ route('orders.show', $order->id) }}"> Посмотреть </a>
+                    <td><a href="{{ route('orders.show', $order->id) }}"> Посмотреть  </a>
                     @if ($order->uploaded_to_bitrix == false)
-                        <a href="{{ route('bitrix.upload', $order->id) }}"> Загрузить </a>
+                         || <a href="{{ route('bitrix.upload', $order->id) }}"> Загрузить </a>
                     @endif
                     </td>
                 </tr>

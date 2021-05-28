@@ -38,7 +38,11 @@
         </tr>
         <tr>
             <td>Магазин</td>
-            <td colspan="5">{{ $order->shop->display_name }}</td>
+            <td colspan="5">{{ $order->shop->display_name ?? '' }}</td>
+        </tr>
+        <tr>
+            <td>Адрес доставки</td>
+            <td colspan="5">{{ $order->delivery_address ?? '' }}</td>
         </tr>
         <tr>
             <td>Сумма</td>
@@ -62,6 +66,6 @@
         </tr>
         @endforeach
     </table>
-
+    Сумма заказа: {{ $sum }}
 </div>
 @endsection
