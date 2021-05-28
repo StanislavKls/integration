@@ -12,6 +12,7 @@ class BitrixController extends Controller
 {
     private const ACCOUNTABLE_OF_ORDER   = 28; //ID ответственного за сделку (Бондаренко)
     private const ACCOUNTABLE_OF_CONTACT = 28; //ID ответственного за контакт (Бондаренко)
+
     public function upload(int $id)
     {
         $order = Order::find($id);
@@ -44,12 +45,12 @@ class BitrixController extends Controller
         $data['TYPE_ID']              = 7;
         $data['SOURCE_ID']            = 'UDS';
         if ($order->delivery_type === 'PICKUP') {
-            $data['UF_CRM_UDS_DEL_TYPE'] = '994'; 
-        } else {
             $data['UF_CRM_UDS_DEL_TYPE'] = '994';
-            $data['UF_CRM_5CE4F9017B5E6'] = $order->delivery_address;
+            $data['UF_CRM_1622107186']   = $order->shop->bitrix_id;
+        } else {
+            $data['UF_CRM_UDS_DEL_TYPE'] = '996';
+            $data['UF_CRM_1622200882']   = $order->delivery_address;
         }
-        $data['UF_CRM_1622107186']    = '1018'; //$order->shop->bitrix_id;
         $data['BEGINDATE']            = $date;
         $data['OPENED']               = 'Да';
         $data['ASSIGNED_BY_ID']       = self::ACCOUNTABLE_OF_ORDER;
@@ -63,7 +64,8 @@ class BitrixController extends Controller
     /**
      * Возвращает bool результат добавления товара в заказ
      *
-     * @param  Order $order, int $id
+     * @param  Order $order
+     * @param int $id
      * @return bool
      */
     private function setItemsInOrder(Order $order, int $id): bool
@@ -143,7 +145,8 @@ class BitrixController extends Controller
     /**
      * Возвращает bool результат установки контакта заказу
      *
-     * @param  int $order, int $id
+     * @param  int $order
+     * @param  int $id
      * @return bool
      */
     private function setContact($orderID, $contactID)
