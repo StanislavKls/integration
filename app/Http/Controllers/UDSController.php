@@ -48,6 +48,12 @@ class UDSController extends Controller
         $bitrixController->upload($data['id']);
         return response()->json('', 200);
     }
+    /**
+     * Сохраняет продавца в БД.
+     *
+     * @param  int  $id
+     * @return bool
+     */
     private function saveCustomer(int $id)
     {
         $data = $this->getClientInformation($id);
@@ -63,7 +69,13 @@ class UDSController extends Controller
 
         return true;
     }
-    private function saveItems(array $data): bool
+    /**
+     * Сохраняет товар в БД.
+     *
+     * @param  array $data
+     * @return bool
+     */
+    private function saveItems(array $data)
     {
         foreach ($data as $item) {
             $goods['id']           = $item['id'];
@@ -85,13 +97,25 @@ class UDSController extends Controller
         }
         return true;
     }
+    /**
+     * Сохраняет лог в txt файл.
+     *
+     * @param  array $data
+     * @return bool
+     */
     private function saveLog(array $data)
     {
         $contents = print_r($data, 1);
         Storage::append('uds_log.txt', $contents);
         return true;
     }
-    private function getClientInformation(int $id): array
+    /**
+     * Получение полной информации о клиенете через API UDS
+     *
+     * @param  int $id
+     * @return array
+     */
+    private function getClientInformation(int $id)
     {
         $date      = new \DateTime();
         $companyId = env('COMPANY_ID');;
@@ -122,7 +146,13 @@ class UDSController extends Controller
             'uid'                   => $data['uid'],
             ];
     }
-    private function saveShop(array $data): bool
+    /**
+     * Сохраняет магазин вывоза в БД.
+     *
+     * @param  array $data
+     * @return bool
+     */
+    private function saveShop(array $data)
     {
         if (!Shop::find($data['id'])) {
             $shop = new Shop();
@@ -133,6 +163,12 @@ class UDSController extends Controller
         }
         return false;
     }
+    /**
+     * Сохраняет заказ в БД.
+     *
+     * @param  array $data
+     * @return bool
+     */
     private function saveOrder(array $data): bool
     {
         $order = new Order();
@@ -140,6 +176,12 @@ class UDSController extends Controller
         $order->save();
         return true;
     }
+    /**
+     * Сохраняет товар заказа в БД
+     * @param  int $id
+     * @param  array $data
+     * @return bool
+     */
     private function saveOrderItems(int $id, array $items): bool
     {
         $order = Order::find($id);

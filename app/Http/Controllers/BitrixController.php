@@ -41,7 +41,7 @@ class BitrixController extends Controller
     {
         $date                         = Carbon::create($order->date_created)->add(5, 'hour');
         $data['CATEGORY_ID']          = 28;
-        $data['TITLE']                = "Заказ №{$order->id} от {$date}";
+        $data['TITLE']                = "Заказ №{$order->id} от {$date->format('d.m.Y H:i:s')}";
         $data['TYPE_ID']              = 7;
         $data['SOURCE_ID']            = 'UDS';
         if ($order->delivery_type === 'PICKUP') {
