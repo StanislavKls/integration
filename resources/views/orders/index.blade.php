@@ -46,6 +46,10 @@
                     @if ($order->uploaded_to_bitrix == false)
                          || <a href="{{ route('bitrix.upload', $order->id) }}"> Загрузить </a>
                     @endif
+                    || <a class="text-danger" href="{{ route('orders.destroy', $order->id) }}"
+                                data-method="delete"
+                                data-confirm="Вы уверены?"
+                        >Удалить</a>
                     </td>
                 </tr>
             @endforeach

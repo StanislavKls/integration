@@ -70,15 +70,36 @@ class BitrixController extends Controller
      */
     private function setItemsInOrder(Order $order, int $id): bool
     {
-        $items = array_map(fn($item) => [
-                                        'PRODUCT_ID' => 0,
-                                        'PRODUCT_NAME' => "{$item['name']} {$item['variant_name']}",
-                                        'PRICE' => $item['pivot']['price'],
-                                        'QUANTITY' => $item['pivot']['qty'],
-                                        ],
-                                        $order->items->toArray());
+        $discount = round($order->points / $order->total * 100, 2);
 
-        $result = CRest::call('crm.deal.productrows.set', ['id' => $id, 'rows' => $items]);
+        $items = $order->items->map(function($item) use ($discount) {
+            $item->sum = round($item->pivot->qty * $item->pivot->price - ($item->pivot->qty * $item->pivot->price / 100 * $discount), 2);
+            $item->discount = $item->pivot->qty * $item->pivot->price - $item->sum;
+            return $item;
+        });
+
+        $sum = $items->reduce(function($acc, $item) {
+            $acc += $item->sum;
+            return $acc;
+        });
+
+        if ($sum !== $order->total - $order->points) {
+            $lastElement = $items->count() - 1;
+            $items[$lastElement]->sum += round($order->total - $order->points - $sum, 2);
+            $items[$lastElement]->discount = $items[$lastElement]->pivot->qty * $items[$lastElement]->pivot->price - $items[$lastElement]->sum;
+        }
+
+        $itemsForUpload = array_map(fn($item) => [
+                                        'PRODUCT_ID'       => 0,
+                                        'PRODUCT_NAME'     => "{$item['name']} {$item['variant_name']}",
+                                        'PRICE'            => $item['pivot']['price'] - $item['discount'],
+                                        'QUANTITY'         => $item['pivot']['qty'],
+                                        'DISCOUNT_TYPE_ID' => 1,
+                                        'DISCOUNT_SUM'     => $item['discount'],
+                                        ],
+                                        $items->toArray());
+
+        $result = CRest::call('crm.deal.productrows.set', ['id' => $id, 'rows' => $itemsForUpload]);
         return $result['result'];
     }
     /**

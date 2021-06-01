@@ -55,17 +55,22 @@
             <td>Товар</td>
             <td>Количесвто</td>
             <td>Цена</td>
+            <td>Скидка</td>
             <td>Сумма</td>
         </tr>
-        @foreach ($order->items as $item)
+        @foreach ($items as $item)
         <tr>
             <td>{{ $item->name }}</td>
             <td>{{ $item->pivot->qty }}</td>
             <td>{{ $item->pivot->price }}</td>
-            <td>{{ $item->pivot->qty * $item->pivot->price }}</td>
+            <td>{{ $item->discount }}</td>
+            <td>{{ $item->sum }}</td>
         </tr>
         @endforeach
     </table>
-    Сумма заказа: {{ $sum }}
+    Процент скидки: {{ $discount }} <br>
+    Сумма заказа(наша): {{ $sum2 }} <br>
+    Сумма(тотал - баллы): {{ $order->total - $order->points }} <br>
+    Тотал - баллы - сумма наша: {{ $order->total - $order->points - $sum2 }}
 </div>
 @endsection

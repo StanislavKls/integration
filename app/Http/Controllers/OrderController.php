@@ -7,6 +7,10 @@ use App\Models\Order;
 
 class OrderController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -26,10 +30,43 @@ class OrderController extends Controller
     public function show(int $id)
     {
         $order = Order::findOrFail($id);
-        $sum = $order->items->reduce(function($acc, $item) {
-            $acc += $item->pivot->qty * $item->pivot->price;
+        $discount = round($order->points / $order->total * 100, 2);
+
+        $items = $order->items->map(function($item) use ($discount) {
+            $item->sum = round($item->pivot->qty * $item->pivot->price - ($item->pivot->qty * $item->pivot->price / 100 * $discount), 2);
+            $item->discount = $item->pivot->qty * $item->pivot->price - $item->sum;
+            return $item;
+        });
+
+        $sum = $items->reduce(function($acc, $item) {
+            $acc += $item->sum;
             return $acc;
         });
-        return view('orders.show', compact('order', 'sum'));
+
+        if ($sum !== $order->total - $order->points) {
+            $lastElement = $items->count() - 1;
+            $items[$lastElement]->sum += $order->total - $order->points - $sum;
+            $items[$lastElement]->discount = $items[$lastElement]->pivot->qty * $items[$lastElement]->pivot->price - $items[$lastElement]->sum;
+        }
+
+        $sum2 = $items->reduce(function($acc, $item) {
+            $acc += $item->sum;
+            return $acc;
+        });
+        return view('orders.show', compact('order', 'sum', 'discount', 'items', 'sum2'));
+    }
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy($id)
+    {
+        $order = Order::find($id);
+        $order->items()->detach();
+        $order->delete();
+        flash('Заказ удален')->success();
+        return redirect()->route('orders.index');
     }
 }

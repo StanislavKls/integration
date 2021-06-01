@@ -18,6 +18,7 @@
     <h1 class="display-4">CRM</h1>
 </div>
 
+
 <form action="{{ route('getcustomer') }}"  class='w-50' method='post'>
     @csrf
   <div class="mb-3">
@@ -27,4 +28,7 @@
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
+@if (Auth::user()->isAdmin())
+    <a class="nav-link" href="{{ route('register') }}">{{ __('Регистрация пользователя') }}</a>
+@endif
 @endsection

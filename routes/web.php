@@ -16,17 +16,18 @@ use App\Http\Controllers\BitrixController;
 |
 */
 
-Route::get('/', function () {
-    return view('index');
-});
-
-
-Route::post('/', [CustomerController::class, 'getClientInformation'])->name('getcustomer');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::resource('customers', CustomerController::class);
 
 Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
 
+Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
+
 Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
 
 Route::get('bitrix/{id}', [BitrixController::class, 'upload'])->name('bitrix.upload');
+
+Auth::routes();
+
+Route::post('/', [CustomerController::class, 'getClientInformation'])->name('getcustomer');
