@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\BitrixController;
+use App\Http\Controllers\ShopController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,8 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 
 Route::resource('customers', CustomerController::class);
 
+Route::resource('shops', ShopController::class);
+
 Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
 
 Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
@@ -31,3 +34,4 @@ Route::get('bitrix/{id}', [BitrixController::class, 'upload'])->name('bitrix.upl
 Auth::routes();
 
 Route::post('/', [CustomerController::class, 'getClientInformation'])->name('getcustomer');
+

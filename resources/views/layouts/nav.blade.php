@@ -16,6 +16,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('orders.index') }}">Заказы</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('shops.index') }}">Магазины</a>
+                </li>
             </ul>
             <!-- Right Side Of Navbar -->
             <ul class="navbar-nav ms-auto">
