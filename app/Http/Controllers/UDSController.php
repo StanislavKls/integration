@@ -75,7 +75,7 @@ class UDSController extends Controller
      * @param  array $data
      * @return bool
      */
-    private function saveItems(array $data)
+    public function saveItems(array $data)
     {
         foreach ($data as $item) {
             $goods['id']           = $item['id'];

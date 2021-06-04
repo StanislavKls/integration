@@ -33,7 +33,7 @@
         </thead>
             @foreach ($orders as $order)
                 <tr>
-                    <td>{{ $order->id }}</td>
+                    <td><a href="{{ route('orders.show', $order->id) }}">{{ $order->id }}</a></td>
                     <td>{{ $order->date_created }}</td>
                     <td>{{ $order->customer->display_name }}</td>
                     <td>{{ $order->total }}</td>
@@ -42,14 +42,17 @@
                     @else
                         <td> Да </td>
                     @endif
-                    <td><a href="{{ route('orders.show', $order->id) }}"> Посмотреть  </a>
-                    @if ($order->uploaded_to_bitrix == false)
-                         || <a href="{{ route('bitrix.upload', $order->id) }}"> Загрузить </a>
-                    @endif
-                    || <a class="text-danger" href="{{ route('orders.destroy', $order->id) }}"
-                                data-method="delete"
-                                data-confirm="Вы уверены?"
-                        >Удалить</a>
+                    <td>
+                        <a href="{{ route('orders.updateItems', $order->id) }}" data-method="post"> Обновить </a>
+                        @if ($order->uploaded_to_bitrix == false)
+                            <a href="{{ route('bitrix.upload', $order->id) }}"> Загрузить || </a>
+                        @endif
+                        @if (Auth::user()->isAdmin())
+                            <a class="text-danger" href="{{ route('orders.destroy', $order->id) }}"
+                                        data-method="delete"
+                                        data-confirm="Вы уверены?"
+                                >Удалить</a>
+                        @endif
                     </td>
                 </tr>
             @endforeach

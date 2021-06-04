@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\BitrixController;
+use App\Http\Controllers\UDSController;
 
 class OrderController extends Controller
 {
@@ -18,7 +21,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::all();
+        $orders = Order::all()->sortByDesc('id');
         return view('orders.index', compact('orders'));
     }
     /**
@@ -30,6 +33,13 @@ class OrderController extends Controller
     public function show(int $id)
     {
         $order = Order::findOrFail($id);
+
+        $items = $order->items->map(function($item) {
+            $item->sum = $item->pivot->qty * $item->pivot->price;
+            $item->discount = 0;
+            return $item;
+        });
+
         $discount = round($order->points / $order->total * 100, 2);
 
         $items = $order->items->map(function($item) use ($discount) {
@@ -49,11 +59,11 @@ class OrderController extends Controller
             $items[$lastElement]->discount = $items[$lastElement]->pivot->qty * $items[$lastElement]->pivot->price - $items[$lastElement]->sum;
         }
 
-        $sum2 = $items->reduce(function($acc, $item) {
+        $sum = $items->reduce(function($acc, $item) {
             $acc += $item->sum;
             return $acc;
         });
-        return view('orders.show', compact('order', 'sum', 'discount', 'items', 'sum2'));
+        return view('orders.show', compact('order', 'sum', 'discount', 'items'));
     }
     /**
      * Remove the specified resource from storage.
@@ -67,6 +77,41 @@ class OrderController extends Controller
         $order->items()->detach();
         $order->delete();
         flash('Заказ удален')->success();
+        return redirect()->route('orders.index');
+    }
+    public function updateItems($id)
+    {
+        $date      = new \DateTime();
+        $companyId = env('COMPANY_ID');;
+        $apikey    = env('APIKEY');
+        $uuid      = uniqid();
+
+        $response = Http::withHeaders([
+                                       'Accept' => 'application/json',
+                                       'X-Origin-Request-Id' => $uuid,
+                                       'X-Timestamp' => $date->format(\DateTime::ATOM)
+                                    ])
+        ->withBasicAuth($companyId, $apikey)
+        ->get("https://api.uds.app/partner/v2/goods-orders/{$id}/");
+
+        $data = $response->json();
+
+        $UDSController = new UDSController();
+        $UDSController->saveItems($data['items']);
+
+        $order = Order::find($id);
+        $order->items()->detach();
+
+        foreach ($data['items'] as $item) {
+            $order->items()->attach($item['id'], ['price' => $item['price'], 'qty' => $item['qty']]);
+        }
+        $order->points = $data['points'];
+        $order->total  = $data['total'];
+        $order->save();
+
+        $bitrixController = new BitrixController();
+        $bitrixController->setItemsInOrder($order, $order->bitrix_id);
+        flash('Заказ обновлен')->success();
         return redirect()->route('orders.index');
     }
 }

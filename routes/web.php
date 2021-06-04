@@ -29,6 +29,8 @@ Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.
 
 Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
 
+Route::post('orders/{id}', [OrderController::class, 'updateItems'])->name('orders.updateItems');
+
 Route::get('bitrix/{id}', [BitrixController::class, 'upload'])->name('bitrix.upload');
 
 Auth::routes();

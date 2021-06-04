@@ -10,8 +10,8 @@ use Carbon\Carbon;
 
 class BitrixController extends Controller
 {
-    private const ACCOUNTABLE_OF_ORDER   = 28; //ID ответственного за сделку (Бондаренко)
-    private const ACCOUNTABLE_OF_CONTACT = 28; //ID ответственного за контакт (Бондаренко)
+    private const ACCOUNTABLE_OF_ORDER   = 10426; //ID ответственного за сделку (Бондаренко)
+    private const ACCOUNTABLE_OF_CONTACT = 10426; //ID ответственного за контакт (Бондаренко)
 
     public function upload(int $id)
     {
@@ -24,6 +24,7 @@ class BitrixController extends Controller
         $setContact     = $this->setContact($orderBitrixID, $contactID);
         if (isset($orderBitrixID) && $setItems && $setContact) {
             $order->uploaded_to_bitrix = true;
+            $order->bitrix_id = $orderBitrixID;
             $order->save();
             flash('Заказ успешно создан')->success();
         } else {
@@ -54,9 +55,11 @@ class BitrixController extends Controller
         $data['BEGINDATE']            = $date;
         $data['OPENED']               = 'Да';
         $data['ASSIGNED_BY_ID']       = self::ACCOUNTABLE_OF_ORDER;
-        $data['COMMENTS']             = $order->comment;
+        $data['COMMENTS']             = $order->delivery_user_comment;
         $data['UF_CRM_1567053944']    = $order->points;
         $data['UF_CRM_1622107491']    = $order->certificate_points;
+        $data['UF_CRM_UDS_DEL_PHN']   = $order->delivery_receiver_phone;
+        $data['UF_CRM_UDS_DEL_RCVR']  = $order->delivery_receiver_name;
         $data['UF_CRM_UDS_ORDER_ID']  = $order->id;
 
         return $data;
@@ -68,7 +71,7 @@ class BitrixController extends Controller
      * @param int $id
      * @return bool
      */
-    private function setItemsInOrder(Order $order, int $id): bool
+    public function setItemsInOrder(Order $order, int $id): bool
     {
         $discount = round($order->points / $order->total * 100, 2);
 
@@ -92,10 +95,10 @@ class BitrixController extends Controller
         $itemsForUpload = array_map(fn($item) => [
                                         'PRODUCT_ID'       => 0,
                                         'PRODUCT_NAME'     => "{$item['name']} {$item['variant_name']}",
-                                        'PRICE'            => $item['pivot']['price'] - $item['discount'],
+                                        'PRICE'            => $item['pivot']['price'] - $item['discount'] / $item['pivot']['qty'],
                                         'QUANTITY'         => $item['pivot']['qty'],
                                         'DISCOUNT_TYPE_ID' => 1,
-                                        'DISCOUNT_SUM'     => $item['discount'],
+                                        'DISCOUNT_SUM'     => $item['discount'] / $item['pivot']['qty'],
                                         ],
                                         $items->toArray());
 
@@ -129,7 +132,8 @@ class BitrixController extends Controller
             'UF_CRM_1622178419' => $customer->membership_tier_name,    //Статус клиента UDS
             'UF_CRM_1622178451' => $customer->date_created,            //Дата подписки в UDS
             'UF_CRM_1622178490' => $customer->last_transaction_time,    //Дата последней транзакции UDS
-            'ASSIGNED_BY_ID'    => self::ACCOUNTABLE_OF_CONTACT
+            'ASSIGNED_BY_ID'    => self::ACCOUNTABLE_OF_CONTACT,
+            'SOURCE_ID'         => 'UDS'
         ];
 
         $result = CRest::call('crm.contact.add', ['fields' => $data]);

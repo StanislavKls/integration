@@ -25,6 +25,10 @@
             <td colspan="5">{{ $order->id }}</td>
         </tr>
         <tr>
+            <td>Bitrix ID</td>
+            <td colspan="5">{{ $order->bitrix_id }}</td>
+        </tr>
+        <tr>
             <td>Дата</td>
             <td colspan="5"> {{ $order->date_created }}</td>
         </tr>
@@ -68,9 +72,7 @@
         </tr>
         @endforeach
     </table>
-    Процент скидки: {{ $discount }} <br>
-    Сумма заказа(наша): {{ $sum2 }} <br>
-    Сумма(тотал - баллы): {{ $order->total - $order->points }} <br>
-    Тотал - баллы - сумма наша: {{ $order->total - $order->points - $sum2 }}
+    Сумма заказа: {{ $sum }} <br>
+
 </div>
 @endsection
