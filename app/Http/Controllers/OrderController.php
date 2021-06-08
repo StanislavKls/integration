@@ -103,7 +103,7 @@ class OrderController extends Controller
         $order->items()->detach();
 
         foreach ($data['items'] as $item) {
-            $order->items()->attach($item['id'], ['price' => $item['price'], 'qty' => $item['qty']]);
+            $order->items()->attach($item['id'], ['price' => $item['price'], 'qty' => $item['qty'], 'variant_name' => $item['variantName']]);
         }
         $order->points = $data['points'];
         $order->total  = $data['total'];

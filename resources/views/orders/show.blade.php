@@ -64,7 +64,7 @@
         </tr>
         @foreach ($items as $item)
         <tr>
-            <td>{{ $item->name }}</td>
+            <td>{{ $item->name . ' ' . $item->pivot->variant_name }}</td>
             <td>{{ $item->pivot->qty }}</td>
             <td>{{ $item->pivot->price }}</td>
             <td>{{ $item->discount }}</td>

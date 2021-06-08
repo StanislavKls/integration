@@ -20,7 +20,7 @@ class Order extends Model
     public function items()
     {
         return $this->belongsToMany(Item::class, 'order_item', 'order_id', 'item_id')
-            ->withPivot('price', 'qty');
+            ->withPivot('price', 'qty', 'variant_name');
     }
     public function shop()
     {

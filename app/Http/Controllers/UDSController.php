@@ -41,7 +41,13 @@ class UDSController extends Controller
         $order['uploaded_to_bitrix']      = false;
         $this->saveOrder($order);
         
-        $idAndPriceOfItems = array_map(fn($item) => ['id' => $item['id'], 'price' => $item['price'], 'qty' => $item['qty']], $data['items']);
+        $idAndPriceOfItems = array_map(fn($item) => [
+            'id'           => $item['id'],
+            'price'        => $item['price'],
+            'qty'          => $item['qty'],
+            'variant_name' => $item['variantName']],
+            $data['items']);
+
         $this->saveOrderItems($data['id'], $idAndPriceOfItems);
 
         $bitrixController = new BitrixController();
@@ -186,7 +192,7 @@ class UDSController extends Controller
     {
         $order = Order::find($id);
         foreach ($items as $item) {
-            $order->items()->attach($item['id'], ['price' => $item['price'], 'qty' => $item['qty']]);
+            $order->items()->attach($item['id'], ['price' => $item['price'], 'qty' => $item['qty'], 'variant_name' => $item['variant_name']]);
         }
         return true;
     }

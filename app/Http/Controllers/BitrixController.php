@@ -94,7 +94,7 @@ class BitrixController extends Controller
 
         $itemsForUpload = array_map(fn($item) => [
                                         'PRODUCT_ID'       => 0,
-                                        'PRODUCT_NAME'     => "{$item['name']} {$item['variant_name']}",
+                                        'PRODUCT_NAME'     => "{$item['name']} {$item['pivot']['variant_name']}",
                                         'PRICE'            => $item['pivot']['price'] - $item['discount'] / $item['pivot']['qty'],
                                         'QUANTITY'         => $item['pivot']['qty'],
                                         'DISCOUNT_TYPE_ID' => 1,
