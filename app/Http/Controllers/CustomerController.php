@@ -21,7 +21,6 @@ class CustomerController extends Controller
     {
         $customers = Customer::all();
         return view('customers.index', compact('customers'));
-
     }
 
     /**
@@ -92,7 +91,7 @@ class CustomerController extends Controller
     public function getClientInformation(Request $request)
     {
         $date = new \DateTime();
-        $companyId = env('COMPANY_ID');;
+        $companyId = env('COMPANY_ID');
         $apikey    = env('APIKEY');
         $uuid = uniqid();
         $id = $request->input('id');
@@ -104,7 +103,7 @@ class CustomerController extends Controller
         ])
         ->withBasicAuth($companyId, $apikey)
         ->get("https://api.uds.app/partner/v2/customers/{$id}");
-        
+
         echo $response;
         return;
     }

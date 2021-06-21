@@ -18,4 +18,3 @@ class Shop extends Model
         return $this->hasMany(Order::class, 'shop_id');
     }
 }
-

@@ -9,7 +9,8 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -40,15 +41,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    function isAdmin() 
+    public function isAdmin()
     {
         $admin_emails = config('settings.admin_emails');
         if (in_array($this->email, $admin_emails)) {
             return true;
-        } 
-        else {
+        } else {
             return false;
         }
     }
-      
 }

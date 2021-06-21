@@ -32,7 +32,7 @@ class UDSController extends Controller
         $order['cash']                    = $data['cash'];
         $order['total']                   = $data['total'];
         $order['comment']                 = $data['comment'];
-        $order['customer_id']             = $data['customer']['id'];  
+        $order['customer_id']             = $data['customer']['id'];
         $order['delivery_type']           = $data['delivery']['type'];
         $order['delivery_address']        = $data['delivery']['address'];
         $order['delivery_receiver_name']  = $data['delivery']['receiverName'];
@@ -40,13 +40,15 @@ class UDSController extends Controller
         $order['delivery_user_comment']   = $data['delivery']['userComment'];
         $order['uploaded_to_bitrix']      = false;
         $this->saveOrder($order);
-        
-        $idAndPriceOfItems = array_map(fn($item) => [
-            'id'           => $item['id'],
-            'price'        => $item['price'],
-            'qty'          => $item['qty'],
-            'variant_name' => $item['variantName']],
-            $data['items']);
+
+        $idAndPriceOfItems = array_map(
+            fn($item) => [
+                'id'           => $item['id'],
+                'price'        => $item['price'],
+                'qty'          => $item['qty'],
+                'variant_name' => $item['variantName']],
+            $data['items']
+        );
 
         $this->saveOrderItems($data['id'], $idAndPriceOfItems);
 
@@ -124,7 +126,7 @@ class UDSController extends Controller
     private function getClientInformation(int $id)
     {
         $date      = new \DateTime();
-        $companyId = env('COMPANY_ID');;
+        $companyId = env('COMPANY_ID');
         $apikey    = env('APIKEY');
         $uuid      = uniqid();
 
@@ -192,7 +194,11 @@ class UDSController extends Controller
     {
         $order = Order::find($id);
         foreach ($items as $item) {
-            $order->items()->attach($item['id'], ['price' => $item['price'], 'qty' => $item['qty'], 'variant_name' => $item['variant_name']]);
+            $order->items()->attach($item['id'], [
+                                                  'price' => $item['price'],
+                                                  'qty' => $item['qty'],
+                                                  'variant_name' => $item['variant_name']
+                                                ]);
         }
         return true;
     }

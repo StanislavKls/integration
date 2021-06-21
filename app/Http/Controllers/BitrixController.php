@@ -47,7 +47,7 @@ class BitrixController extends Controller
         $data['SOURCE_ID']            = 'UDS';
         if ($order->delivery_type === 'PICKUP') {
             $data['UF_CRM_UDS_DEL_TYPE'] = '994';
-            $data['UF_CRM_1622107186']   = $order->shop->bitrix_id;
+            $data['UF_CRM_1623059988']   = $order->shop->bitrix_id;
         } else {
             $data['UF_CRM_UDS_DEL_TYPE'] = '996';
             $data['UF_CRM_1622200882']   = $order->delivery_address;

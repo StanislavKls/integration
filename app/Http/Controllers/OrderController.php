@@ -34,7 +34,7 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
 
-        $items = $order->items->map(function($item) {
+        $items = $order->items->map(function ($item) {
             $item->sum = $item->pivot->qty * $item->pivot->price;
             $item->discount = 0;
             return $item;
@@ -42,13 +42,13 @@ class OrderController extends Controller
 
         $discount = round($order->points / $order->total * 100, 2);
 
-        $items = $order->items->map(function($item) use ($discount) {
+        $items = $order->items->map(function ($item) use ($discount) {
             $item->sum = round($item->pivot->qty * $item->pivot->price - ($item->pivot->qty * $item->pivot->price / 100 * $discount), 2);
             $item->discount = $item->pivot->qty * $item->pivot->price - $item->sum;
             return $item;
         });
 
-        $sum = $items->reduce(function($acc, $item) {
+        $sum = $items->reduce(function ($acc, $item) {
             $acc += $item->sum;
             return $acc;
         });
@@ -59,7 +59,7 @@ class OrderController extends Controller
             $items[$lastElement]->discount = $items[$lastElement]->pivot->qty * $items[$lastElement]->pivot->price - $items[$lastElement]->sum;
         }
 
-        $sum = $items->reduce(function($acc, $item) {
+        $sum = $items->reduce(function ($acc, $item) {
             $acc += $item->sum;
             return $acc;
         });
@@ -82,7 +82,7 @@ class OrderController extends Controller
     public function updateItems($id)
     {
         $date      = new \DateTime();
-        $companyId = env('COMPANY_ID');;
+        $companyId = env('COMPANY_ID');
         $apikey    = env('APIKEY');
         $uuid      = uniqid();
 
